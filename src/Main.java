@@ -21,7 +21,7 @@ public class Main {
             filePath=args[0];
         }
         prepareFile(filePath);
-        filePath=filePath.replace("\\","/");
+        filePath = filePath.replace("\\", "/");
         extDtr = filePath.substring(0, filePath.lastIndexOf("/") + 1) + "ext_" + filePath.substring(filePath.lastIndexOf("/") + 1, filePath.lastIndexOf("."));
         File tempDir = new File(extDtr);
         if (!tempDir.exists()) {
@@ -31,7 +31,7 @@ public class Main {
             tempDir.mkdirs();
         }
         readFiles();
-        System.out.printf("文件总数：%d\n",fileCount);
+        System.out.printf("文件总数：%d\n", fileCount);
         System.out.println("文件名\t文件偏移量\t文件大小\n--------------------------------------------------");
         for (PKGFile pkgFile : pkgFiles) {
             System.out.printf("%s\t%d\t%d\n", pkgFile.name, pkgFile.offset, pkgFile.size);
@@ -68,7 +68,7 @@ public class Main {
             System.out.println("文件版本：PKGV0001");
             byte[] bytes = new byte[4];
             fis.read(bytes, 0, 4);
-            fileCount = bytes[0];
+            fileCount = (int) getSize(bytes);
             ds_ptr += 4;
         }
     }
@@ -84,7 +84,7 @@ public class Main {
         byte[] bytes = new byte[4];
         fis.read(bytes, 0, 4);
         ds_ptr += 4;
-        size = bytes[0];
+        size = (int) getSize(bytes);
         byte[] bytes1 = new byte[size];
         fis.read(bytes1, 0, size);
         ds_ptr += size;
@@ -175,7 +175,8 @@ public class Main {
         for (int i = bytes.length - 1; i >= 0; i--) {
             byte b = bytes[i];
             int i1 = b < 0 ? b + 256 : b;
-            str += Integer.toHexString(i1);
+            String temp = Integer.toHexString(i1);
+            str += temp.length() < 2 ? "0" + temp : temp;
         }
         return Long.valueOf(str, 16);
     }
@@ -194,14 +195,14 @@ public class Main {
         FileInputStream fis = new FileInputStream(filePath);
         byte[] buffer = new byte[4096];
         fis.skip(offset + ds_ptr);
-        long times=size/4096;
-        for(int i=0;i<times;i++){
-            fis.read(buffer,0,4096);
-            fos.write(buffer,0,4096);
+        long times = size / 4096;
+        for (int i = 0; i < times; i++) {
+            fis.read(buffer, 0, 4096);
+            fos.write(buffer, 0, 4096);
         }
-        int remain=(int)size%4096;
-        fis.read(buffer,0,remain);
-        fos.write(buffer,0,remain);
+        int remain = (int) size % 4096;
+        fis.read(buffer, 0, remain);
+        fos.write(buffer, 0, remain);
         System.out.printf("已提取\t%s\n", name);
         fis.close();
         fos.close();
@@ -212,9 +213,10 @@ class PKGFile {
     String name;
     long offset;
     long size;
-    public PKGFile(String name,long offset,long size){
-        this.name=name;
-        this.offset=offset;
-        this.size=size;
+
+    public PKGFile(String name, long offset, long size) {
+        this.name = name;
+        this.offset = offset;
+        this.size = size;
     }
 }
