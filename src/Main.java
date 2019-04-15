@@ -61,7 +61,7 @@ public class Main {
      */
     static void readHeader() throws IOException {
         version = readStr();
-        if (!version.equals("PKGV0001")) {
+        if (!(version.equals("PKGV0001")||version.equals("PKGV0002"))) {
             System.out.println("文件不支持");
             System.exit(0);
         } else {
